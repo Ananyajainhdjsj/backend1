@@ -1,0 +1,22 @@
+# FastAPI + server
+fastapi==0.95.2
+uvicorn[standard]==0.22.0
+python-multipart==0.0.6
+pydantic==1.10.11
+
+# PDF processing
+pdfplumber==0.10.3
+PyPDF2==3.0.1
+PyMuPDF==1.23.26  # Prebuilt wheel, avoids compile
+
+# NLP & utilities
+nltk==3.8.1
+scikit-learn==1.4.0
+numpy==1.26.2
+python-dateutil==2.8.2
+
+# Audio (TTS) if needed
+pyttsx3==2.90
+
+# Storage
+sqlitedict==2.1.0
