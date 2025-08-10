@@ -1,7 +1,7 @@
 # app/chunker.py
 import re
 
-def chunk_text_simple(pages):
+def chunk_text(pages):
     chunks = []
     for item in pages:
         # Split text into blocks at sentence boundaries
@@ -62,31 +62,3 @@ def chunk_text_advanced(pages):
             })
     
     return chunks
-
-def chunk_text(text, chunk_size=400):
-    """
-    Simple text chunking for plain text strings
-    """
-    if isinstance(text, str):
-        # Simple text chunking by sentence boundaries
-        sentences = re.split(r'(?<=\.)\s+(?=[A-Z])', text)
-        chunks = []
-        current_chunk = ""
-        
-        for sentence in sentences:
-            if len(current_chunk) + len(sentence) <= chunk_size:
-                current_chunk += " " + sentence if current_chunk else sentence
-            else:
-                if current_chunk.strip():
-                    chunks.append(current_chunk.strip())
-                current_chunk = sentence
-        
-        # Add the final chunk
-        if current_chunk.strip():
-            chunks.append(current_chunk.strip())
-        
-        return chunks
-    
-    # Handle the original page structure format
-    else:
-        return chunk_text_simple(text)
