@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Insights - Persona-Based Document Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .file-list {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ecf0f1;
+            margin-bottom: 10px;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .file-info {
+            flex-grow: 1;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .file-meta {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .checkbox-container {
+            margin-right: 15px;
+        }
+        
+        .results {
+            background: white;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .results h3 {
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .result-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .result-text {
+            color: #34495e;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .status-bar {
+            background: #ecf0f1;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #ecf0f1;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 PDF Insights</h1>
+            <p>Intelligent Persona-Based Document Analysis</p>
+        </div>
+        
+        <div class="status-bar">
+            Backend API: <span id="backend-status">Checking...</span>
+        </div>
+        
+        <div class="main-content">
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('upload')">📤 Upload & Manage</div>
+                <div class="tab" onclick="showTab('analyze')">🎯 Persona Analysis</div>
+                <div class="tab" onclick="showTab('search')">🔍 Search</div>
+                <div class="tab" onclick="showTab('insights')">💡 Insights</div>
+            </div>
+            
+            <!-- Upload Tab -->
+            <div id="upload-content" class="tab-content active">
+                <div class="section">
+                    <h2>📤 Upload Documents</h2>
+                    <div class="form-group">
+                        <label for="file-input">Choose PDF or JSON files:</label>
+                        <input type="file" id="file-input" accept=".pdf,.json" multiple>
+                    </div>
+                    <button class="btn" onclick="uploadFiles()">Upload Files</button>
+                </div>
+                
+                <div class="section">
+                    <h2>📁 Available Documents</h2>
+                    <button class="btn" onclick="loadAvailableFiles()">Refresh List</button>
+                    <div id="file-list" class="file-list">
+                        <div class="loading">Click "Refresh List" to load documents</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analyze Tab -->
+            <div id="analyze-content" class="tab-content">
+                <div class="section">
+                    <h2>🎯 Persona-Based Analysis</h2>
+                    
+                    <div class="form-group">
+                        <label for="persona-role">Your Role:</label>
+                        <select id="persona-role" onchange="toggleCustomPersona()">
+                            <option value="Data Scientist">Data Scientist</option>
+                            <option value="Software Engineer">Software Engineer</option>
+                            <option value="Product Manager">Product Manager</option>
+                            <option value="Student">Student</option>
+                            <option value="Researcher">Researcher</option>
+                            <option value="Business Analyst">Business Analyst</option>
+                            <option value="custom">🎯 Custom Role</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="custom-persona-group" style="display: none;">
+                        <label for="custom-persona">Enter Your Custom Role:</label>
+                        <input type="text" id="custom-persona" placeholder="e.g., Marketing Manager, Teacher, etc.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience-level">Experience Level:</label>
+                        <select id="experience-level">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="job-task">What do you want to accomplish?</label>
+                        <input type="text" id="job-task" placeholder="e.g., understand machine learning algorithms" value="understand machine learning algorithms">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="job-description">Detailed Description:</label>
+                        <textarea id="job-description" placeholder="Describe what you want to learn or achieve from these documents...">I want to understand the fundamental concepts and practical applications of machine learning algorithms, including how they work and when to use them.</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Select Documents to Analyze:</label>
+                        <div id="document-selection" class="file-list">
+                            <div class="loading">Load documents first from the Upload tab</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="performPersonaAnalysis()">🚀 Analyze Documents</button>
+                    
+                    <div id="analysis-results"></div>
+                </div>
+            </div>
+            
+            <!-- Search Tab -->
+            <div id="search-content" class="tab-content">
+                <div class="section">
+                    <h2>🔍 Semantic Search</h2>
+                    
+                    <div class="form-group">
+                        <label for="search-query">Search Query:</label>
+                        <input type="text" id="search-query" placeholder="Enter your search query...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="search-results-count">Number of Results:</label>
+                        <select id="search-results-count">
+                            <option value="5">5 results</option>
+                            <option value="10">10 results</option>
+                            <option value="15">15 results</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" onclick="performSearch()">Search</button>
+                    
+                    <div id="search-results"></div>
+                </div>
+            </div>
+            
+            <!-- Insights Tab -->
+            <div id="insights-content" class="tab-content">
+                <div class="section">
+                    <h2>💡 Generate Insights</h2>
+                    
+                    <div class="form-group">
+                        <label for="insights-text">Text to Analyze:</label>
+                        <textarea id="insights-text" placeholder="Paste text here for insights generation..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="insights-mode">Analysis Mode:</label>
+                        <select id="insights-mode">
+                            <option value="bulb">💡 General Insights</option>
+                            <option value="keypoints">🎯 Key Points</option>
+                            <option value="contradictions">⚡ Contradictions</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" onclick="generateInsights()">Generate Insights</button>
+                    
+                    <div id="insights-results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let availableFiles = [];
+        
+        // Check backend status
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                const data = await response.json();
+                document.getElementById('backend-status').textContent = '✅ Connected';
+                document.getElementById('backend-status').style.color = '#27ae60';
+            } catch (error) {
+                document.getElementById('backend-status').textContent = '❌ Disconnected';
+                document.getElementById('backend-status').style.color = '#e74c3c';
+            }
+        }
+        
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-content').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        // Toggle custom persona input
+        function toggleCustomPersona() {
+            const select = document.getElementById('persona-role');
+            const customGroup = document.getElementById('custom-persona-group');
+            
+            if (select.value === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        }
+        
+        // Upload files
+        async function uploadFiles() {
+            const fileInput = document.getElementById('file-input');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                showMessage('Please select files to upload', 'error');
+                return;
+            }
+            
+            for (let file of files) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    const response = await fetch(`${API_BASE}/files/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        showMessage(`✅ Uploaded: ${file.name}`, 'success');
+                    } else {
+                        throw new Error(`Failed to upload ${file.name}`);
+                    }
+                } catch (error) {
+                    showMessage(`❌ Error uploading ${file.name}: ${error.message}`, 'error');
+                }
+            }
+            
+            // Clear file input and refresh list
+            fileInput.value = '';
+            setTimeout(loadAvailableFiles, 1000);
+        }
+        
+        // Load available files
+        async function loadAvailableFiles() {
+            try {
+                const response = await fetch(`${API_BASE}/persona-analyze/available-docs`);
+                const data = await response.json();
+                availableFiles = data.available_documents || [];
+                
+                displayFileList();
+                updateDocumentSelection();
+            } catch (error) {
+                showMessage('Error loading files: ' + error.message, 'error');
+            }
+        }
+        
+        // Display file list
+        function displayFileList() {
+            const fileListDiv = document.getElementById('file-list');
+            
+            if (availableFiles.length === 0) {
+                fileListDiv.innerHTML = '<div class="loading">No documents uploaded yet</div>';
+                return;
+            }
+            
+            fileListDiv.innerHTML = availableFiles.map(file => `
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-name">${file.original_filename}</div>
+                        <div class="file-meta">${file.file_type.toUpperCase()} • ${(file.file_size_bytes / 1024).toFixed(1)} KB • ${new Date(file.upload_timestamp).toLocaleDateString()}</div>
+                    </div>
+                    <button class="btn" onclick="deleteFile('${file.doc_id}')">🗑️</button>
+                </div>
+            `).join('');
+        }
+        
+        // Update document selection for analysis
+        function updateDocumentSelection() {
+            const selectionDiv = document.getElementById('document-selection');
+            
+            if (availableFiles.length === 0) {
+                selectionDiv.innerHTML = '<div class="loading">No documents available</div>';
+                return;
+            }
+            
+            selectionDiv.innerHTML = availableFiles.map(file => `
+                <div class="file-item">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="doc_${file.doc_id}" value="${file.doc_id}">
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name">${file.original_filename}</div>
+                        <div class="file-meta">${file.file_type.toUpperCase()} • ${(file.file_size_bytes / 1024).toFixed(1)} KB</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Delete file
+        async function deleteFile(docId) {
+            if (!confirm('Are you sure you want to delete this file?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/files/${docId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showMessage('✅ File deleted successfully', 'success');
+                    loadAvailableFiles();
+                } else {
+                    throw new Error('Failed to delete file');
+                }
+            } catch (error) {
+                showMessage('❌ Error deleting file: ' + error.message, 'error');
+            }
+        }
+        
+        // Perform persona analysis
+        async function performPersonaAnalysis() {
+            const selectedDocs = [];
+            document.querySelectorAll('#document-selection input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedDocs.push(checkbox.value);
+            });
+            
+            if (selectedDocs.length === 0) {
+                showMessage('Please select at least one document', 'error');
+                return;
+            }
+            
+            const personaRole = document.getElementById('persona-role').value;
+            const customPersona = document.getElementById('custom-persona').value;
+            const finalRole = personaRole === 'custom' ? customPersona : personaRole;
+            
+            if (personaRole === 'custom' && !customPersona.trim()) {
+                showMessage('Please enter your custom role', 'error');
+                return;
+            }
+            
+            const requestData = {
+                doc_ids: selectedDocs,
+                persona: {
+                    role: finalRole,
+                    experience: document.getElementById('experience-level').value
+                },
+                job_to_be_done: {
+                    task: document.getElementById('job-task').value
+                },
+                job_description: document.getElementById('job-description').value
+            };
+            
+            const resultsDiv = document.getElementById('analysis-results');
+            resultsDiv.innerHTML = '<div class="loading">🔄 Analyzing documents... This may take a moment.</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/persona-analyze/docs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `Analysis failed with status ${response.status}`);
+                }
+                
+                const result = await response.json();
+                displayAnalysisResults(result);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Analysis failed: ${error.message}</div>`;
+            }
+        }
+        
+        // Display analysis results
+        function displayAnalysisResults(result) {
+            const resultsDiv = document.getElementById('analysis-results');
+            
+            let html = `
+                <div class="results">
+                    <h3>📊 Analysis Results</h3>
+                    <div class="result-item">
+                        <div class="result-title">Persona: ${result.persona_analysis.metadata.persona}</div>
+                        <div class="result-title">Goal: ${result.persona_analysis.metadata.job_to_be_done}</div>
+                        <div class="result-text">Processing Time: ${result.processing_time.toFixed(2)}s | Relevant Sections: ${result.relevant_sections}</div>
+                    </div>
+            `;
+            
+            if (result.persona_analysis.subsection_analysis) {
+                html += '<h4>🎯 Most Relevant Content:</h4>';
+                result.persona_analysis.subsection_analysis.slice(0, 5).forEach((section, index) => {
+                    html += `
+                        <div class="result-item">
+                            <div class="result-title">Section ${index + 1} - ${section.document} (Page ${section.page_number})</div>
+                            <div class="result-text">${section.refined_text.substring(0, 300)}${section.refined_text.length > 300 ? '...' : ''}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+        
+        // Perform search
+        async function performSearch() {
+            const query = document.getElementById('search-query').value.trim();
+            const k = parseInt(document.getElementById('search-results-count').value);
+            
+            if (!query) {
+                showMessage('Please enter a search query', 'error');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = '<div class="loading">🔍 Searching...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query, k })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+                
+                const result = await response.json();
+                displaySearchResults(result.results);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Search failed: ${error.message}</div>`;
+            }
+        }
+        
+        // Display search results
+        function displaySearchResults(results) {
+            const resultsDiv = document.getElementById('search-results');
+            
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div class="loading">No results found</div>';
+                return;
+            }
+            
+            let html = '<div class="results"><h3>🔍 Search Results</h3>';
+            results.forEach((result, index) => {
+                html += `
+                    <div class="result-item">
+                        <div class="result-title">Result ${index + 1} (Score: ${result.score.toFixed(3)})</div>
+                        <div class="result-text">${result.text_snippet}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        // Generate insights
+        async function generateInsights() {
+            const text = document.getElementById('insights-text').value.trim();
+            const mode = document.getElementById('insights-mode').value;
+            
+            if (!text) {
+                showMessage('Please enter text to analyze', 'error');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('insights-results');
+            resultsDiv.innerHTML = '<div class="loading">💡 Generating insights...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/insights/summarize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ chunk_text: text, mode })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Insights generation failed');
+                }
+                
+                const result = await response.json();
+                displayInsightsResults(result);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Insights generation failed: ${error.message}</div>`;
+            }
+        }
+        
+        // Display insights results
+        function displayInsightsResults(result) {
+            const resultsDiv = document.getElementById('insights-results');
+            
+            let html = `
+                <div class="results">
+                    <h3>💡 Generated Insights</h3>
+                    <div class="result-item">
+                        <div class="result-title">Source: ${result.source}</div>
+                        <div class="result-text">${result.insights}</div>
+                    </div>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            
+            const container = document.querySelector('.main-content');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkBackendStatus();
+            loadAvailableFiles();
+            
+            // Check backend status every 30 seconds
+            setInterval(checkBackendStatus, 30000);
+        });
+    </script>
+</body>
+</html>
