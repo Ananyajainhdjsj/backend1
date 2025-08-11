@@ -8,8 +8,8 @@ router = APIRouter()
 
 @router.post("/pdf/upload")
 async def upload_pdf(file: UploadFile = File(...)):
-    if not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files allowed")
+    if not (file.filename.lower().endswith(".pdf") or file.filename.lower().endswith(".json")):
+        raise HTTPException(status_code=400, detail="Only PDF and JSON files allowed")
     doc_id = str(uuid.uuid4())
     path = save_pdf(doc_id, file)
     outline, text = extract_outline_text(path)

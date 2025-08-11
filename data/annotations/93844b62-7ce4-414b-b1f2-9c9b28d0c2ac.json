@@ -1,0 +1,11 @@
+[
+  {
+    "id": "string",
+    "doc_id": "string",
+    "body": "string",
+    "target": "string",
+    "created": "string",
+    "modified": "string",
+    "user": "local"
+  }
+]

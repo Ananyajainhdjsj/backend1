@@ -11,7 +11,16 @@ else:
     # Running locally
     DATA_DIR = os.getenv("DATA_DIR", os.path.join(os.getcwd(), "data"))
 
-PDF_DIR = os.path.join(DATA_DIR, "pdfs")
+import os
+
+# PDF storage directory
+PDF_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "pdfs")
+
+# Adobe PDF Embed API configuration
+ADOBE_PDF_CLIENT_ID = os.getenv("ADOBE_PDF_CLIENT_ID", "")
+
+# Ensure PDF directory exists
+os.makedirs(PDF_DIR, exist_ok=True)
 ANNOTATION_DIR = os.path.join(DATA_DIR, "annotations")
 INSIGHTS_DIR = os.path.join(DATA_DIR, "insights")
 INDEX_DIR = os.path.join(DATA_DIR, "index")
